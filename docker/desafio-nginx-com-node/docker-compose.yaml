@@ -5,17 +5,20 @@ services:
     build:
       context: node
     container_name: app
+    command: ["/usr/src/app/wait-for-it.sh", "db:3306", "-t", "30", "--", "node", "index.js"]
+    image: gledsoncruz/node:desafio-nginx-com-node
     networks:
       - nodenet
     volumes:
       - ./node:/usr/src/app
     tty: true
-    ports:
-      - 3000:3000
+    # ports:
+    #   - 3000:3000
 
   db:
     build:
       context: mysql
+    image: gledsoncruz/mysql:desafio-nginx-com-node
     command: --innodb-use-native-aio=0
     container_name: db
     restart: always
@@ -25,6 +28,16 @@ services:
     environment:
       - MYSQL_DATABASE=nodedb
       - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - nodenet
+
+  nginx:
+    build:
+      context: nginx
+    image: gledsoncruz/nginx:desafio-nginx-com-node
+    container_name: nginx
+    ports:
+      - 8080:8080
     networks:
       - nodenet
 
